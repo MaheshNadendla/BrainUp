@@ -231,7 +231,6 @@
 
 
 
-
 import React, { useState, useEffect } from 'react';
 
 // Helper: Generates a random number between 10 and 99
@@ -263,18 +262,10 @@ const FindTheNumberGame = ({
   });
 
   const generateGrid = () => {
-    // --- 1. RANDOMIZE NUMBERS LOGIC ---
-    
-    // A. Pick a Target (10-99)
     const newTarget = getRandomTwoDigit();
-
-    // B. Pick a Common Number (Must be different from Target)
     let newCommon;
-    do {
-      newCommon = getRandomTwoDigit();
-    } while (newCommon === newTarget);
+    do { newCommon = getRandomTwoDigit(); } while (newCommon === newTarget);
 
-    // C. Pick Distractors (Must be different from Target and Common)
     const newDistractors = [];
     while (newDistractors.length < 3) {
       const d = getRandomTwoDigit();
@@ -283,19 +274,14 @@ const FindTheNumberGame = ({
       }
     }
 
-    // Update state so UI knows what to show in header
     setCurrentConfig({ target: newTarget, common: newCommon });
 
-    // --- 2. BUILD GRID ---
     let newGrid = new Array(totalItems).fill(newCommon);
-
-    // Add distractors (scattered randomly)
     for (let i = 0; i < totalItems * 0.05; i++) {
       const r = Math.floor(Math.random() * totalItems);
       newGrid[r] = newDistractors[Math.floor(Math.random() * newDistractors.length)];
     }
 
-    // Place Target
     const tIndex = Math.floor(Math.random() * totalItems);
     newGrid[tIndex] = newTarget;
 
@@ -336,7 +322,7 @@ const FindTheNumberGame = ({
       setTimeLeft(breakTime);
     } else if (gameState === 'BREAK') {
       setLevel((l) => l + 1);
-      generateGrid(); // <--- This will now trigger new random numbers
+      generateGrid();
       setGameState('PLAYING');
       setTimeLeft(playTime);
     }
@@ -348,7 +334,6 @@ const FindTheNumberGame = ({
     else if (gameState === 'BREAK') max = breakTime;
     else if (gameState === 'REVEAL_HIGHLIGHT') max = revealHighlightTime;
     else max = revealPopupTime;
-    
     return `${(timeLeft / max) * 100}%`;
   };
 
@@ -357,10 +342,10 @@ const FindTheNumberGame = ({
   return (
     <div className="fixed inset-0 bg-black flex justify-center items-center font-sans overflow-hidden">
       
-      {/* Mobile Frame */}
+      {/* Mobile Frame: Forces 100dvh height */}
       <div className="w-full max-w-md bg-white h-[100dvh] flex flex-col relative overflow-hidden">
         
-        {/* --- Top Bar --- */}
+        {/* --- Top Bar (Fixed Height) --- */}
         <div className="bg-gray-900 text-white px-4 py-2 flex justify-between items-center shrink-0 z-20 shadow-md">
           <span className="font-bold text-yellow-400">LEVEL {level}</span>
           <div className="flex items-center gap-2">
@@ -373,7 +358,7 @@ const FindTheNumberGame = ({
           </div>
         </div>
 
-        {/* --- Progress Bar --- */}
+        {/* --- Progress Bar (Fixed Height) --- */}
         <div className="h-1 bg-gray-200 w-full shrink-0">
           <div 
             className="h-full bg-red-600 transition-all duration-1000 ease-linear"
@@ -381,100 +366,96 @@ const FindTheNumberGame = ({
           />
         </div>
 
-        {/* --- POPUP --- */}
+        {/* --- POPUP (Overlay) --- */}
         {gameState === 'REVEAL_POPUP' && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-300">
             <div className="bg-white border-4 border-red-600 rounded-xl p-8 shadow-2xl transform scale-110 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-300">
               <div className="text-red-600 font-extrabold text-2xl uppercase mb-2 tracking-widest">Answer</div>
-              <div className="flex flex-col gap-1">
-                {/* <div className="text-5xl font-black text-gray-900">
-                  ROW <span className="text-red-600">{answerCoords.row}</span>
-                </div>
-                <div className="h-1 w-full bg-gray-200 my-2 rounded-full"></div>
-                <div className="text-5xl font-black text-gray-900">
-                  COL <span className="text-red-600">{answerCoords.col}</span>
-                </div> */}
-                 <div className="text-5xl font-black text-gray-900">
-                    <span className="text-red-600">{answerCoords.row}</span>,<span className="text-red-600">{answerCoords.col}</span>
-                 </div>
+              <div className="text-5xl font-black text-gray-900">
+                <span className="text-red-600">{answerCoords.row}</span> , <span className="text-red-600">{answerCoords.col}</span>
               </div>
             </div>
           </div>
         )}
 
-        {/* --- GAME CONTENT --- */}
+        {/* --- MAIN GAME CONTENT AREA (Flex-1 to take all remaining space) --- */}
         {gameState === 'BREAK' ? (
           <div className="flex-1 flex flex-col items-center justify-center bg-gray-900 text-white animate-in fade-in">
              <h2 className="text-2xl font-bold mb-4">Next Puzzle Coming...</h2>
              <div className="text-6xl font-black text-yellow-400 mb-2">{timeLeft}</div>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col pt-2 pb-2 px-1 relative items-center">
+          <div className="flex-1 flex flex-col w-full relative min-h-0">
             
-            {/* Header Title (Updated to use currentConfig.target) */}
-            <div className="text-center mb-2 shrink-0">
-               <h1 className="text-3xl font-extrabold tracking-tight text-black">
+            {/* Header Title (Fixed Height) */}
+            <div className="text-center py-2 shrink-0">
+               <h1 className="text-2xl font-extrabold tracking-tight text-black">
                  FIND ={'>'} <span className="underline decoration-4 underline-offset-4">{currentConfig.target}</span>
                </h1>
             </div>
 
-            {/* --- LOCKED GRID STRUCTURE --- */}
-            <div className="flex flex-col items-center">
+            {/* --- FLEXIBLE GRID CONTAINER --- */}
+            {/* flex-1 min-h-0 ensures this container takes available space but doesn't overflow */}
+            <div className="flex-1 flex flex-col px-1 pb-1 min-h-0">
               
-              {/* 1. Column Headers Row */}
-              <div className="flex mb-1">
+              {/* 1. Column Headers (Fixed small height) */}
+              <div className="flex shrink-0 mb-1">
                  <div className="w-6 mr-1"></div> 
-                 <div className="flex gap-x-1">
+                 <div className="flex-1 flex gap-x-0.5 justify-between">
                    {Array.from({ length: cols }, (_, i) => (
-                     <div key={i} className={`w-7 text-[10px] text-center font-mono text-gray-400 ${isRevealed && (i + 1) === answerCoords.col ? 'text-red-600 font-bold' : ''}`}>
+                     <div key={i} className={`flex-1 text-[10px] text-center font-mono text-gray-400 ${isRevealed && (i + 1) === answerCoords.col ? 'text-red-600 font-bold' : ''}`}>
                        {i + 1}
                      </div>
                    ))}
                  </div>
               </div>
 
-              {/* 2. Main Rows Loop */}
-              {Array.from({ length: rows }, (_, rowIndex) => (
-                <div key={rowIndex} className="flex items-center mb-0.5">
-                  
-                  {/* Left Sidebar: Row Number */}
-                  <div className={`w-6 mr-1 text-[10px] text-right pr-1 font-mono text-gray-400 ${isRevealed && (rowIndex + 1) === answerCoords.row ? 'text-red-600 font-bold' : ''}`}>
-                    {rowIndex + 1}
-                  </div>
+              {/* 2. Rows Container (Flex-1 forces rows to share height) */}
+              <div className="flex-1 flex flex-col min-h-0">
+                {Array.from({ length: rows }, (_, rowIndex) => (
+                  // Each ROW gets flex-1 to split height evenly
+                  <div key={rowIndex} className="flex-1 flex items-center w-full">
+                    
+                    {/* Left Sidebar: Row Number */}
+                    <div className={`w-6 mr-1 text-[10px] text-right pr-1 font-mono text-gray-400 shrink-0 ${isRevealed && (rowIndex + 1) === answerCoords.row ? 'text-red-600 font-bold' : ''}`}>
+                      {rowIndex + 1}
+                    </div>
 
-                  {/* Grid Numbers */}
-                  <div className="flex gap-x-1">
-                    {gridNumbers.slice(rowIndex * cols, (rowIndex + 1) * cols).map((num, colIndex) => {
-                      const absoluteIndex = rowIndex * cols + colIndex;
-                      const isTarget = absoluteIndex === targetIndex;
-                      const isHighlighted = isRevealed && isTarget;
-                      const isDimmed = isRevealed && !isTarget;
+                    {/* Grid Numbers Area */}
+                    <div className="flex-1 flex gap-x-0.5 h-full">
+                      {gridNumbers.slice(rowIndex * cols, (rowIndex + 1) * cols).map((num, colIndex) => {
+                        const absoluteIndex = rowIndex * cols + colIndex;
+                        const isTarget = absoluteIndex === targetIndex;
+                        const isHighlighted = isRevealed && isTarget;
+                        const isDimmed = isRevealed && !isTarget;
 
-                      return (
-                        <div
-                          key={colIndex}
-                          className={`
-                            w-7 h-7 flex items-center justify-center
-                            text-center font-bold text-lg select-none leading-none
-                            transition-all duration-500
-                            ${isHighlighted ? 'bg-red-600 text-white rounded shadow-sm z-10 scale-110' : ''}
-                            ${isDimmed ? 'opacity-30 blur-[1px]' : 'text-gray-900'}
-                          `}
-                        >
-                          {num}
-                        </div>
-                      );
-                    })}
+                        return (
+                          // Each CELL fills the row height and width
+                          <div
+                            key={colIndex}
+                            className={`
+                              flex-1 flex items-center justify-center
+                              text-center font-bold text-xs sm:text-sm select-none leading-none
+                              transition-all duration-500
+                              ${isHighlighted ? 'bg-red-600 text-white rounded shadow-sm z-10 scale-110' : ''}
+                              ${isDimmed ? 'opacity-30 blur-[1px]' : 'text-gray-900'}
+                            `}
+                          >
+                            {num}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
           </div>
         )}
 
-        {/* Footer */}
-        <div className="pb-4 pt-1 text-center shrink-0 bg-white z-10">
+        {/* Footer (Fixed Height) */}
+        <div className="pb-4 pt-1 text-center shrink-0 bg-white z-10 border-t border-gray-100">
              <div className="flex justify-center items-center gap-2 text-gray-400 text-xs font-medium tracking-wide">
                 <span>BRAIN UP is Live</span>
              </div>
