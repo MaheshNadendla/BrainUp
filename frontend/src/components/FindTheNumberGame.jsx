@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 const FindTheNumberGame = ({
-  totalItems = 240,
+  // Reduced to 160 (10x16 grid) to fit safe area on most phones
+  totalItems = 160,
   targetNumber = 42,
   commonNumber = 24,
   distractors = [23, 29],
@@ -25,7 +26,7 @@ const FindTheNumberGame = ({
       newGrid[randomIndex] = randomDistractor;
     }
 
-    // 3. Place the Target Number (Ensure it overwrites whatever is there)
+    // 3. Place the Target Number
     const winningIndex = Math.floor(Math.random() * totalItems);
     newGrid[winningIndex] = targetNumber;
 
@@ -34,39 +35,42 @@ const FindTheNumberGame = ({
 
   useEffect(() => {
     initializeGame();
-  }, [targetNumber, commonNumber, totalItems]); // Re-run if props change
+  }, [totalItems]);
 
   const handleNumberClick = (number, index) => {
     if (number === targetNumber) {
       setHasWon(true);
     } else {
-      // Visual feedback for wrong click
       setWrongClickIndex(index);
       setTimeout(() => setWrongClickIndex(null), 300);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black flex justify-center items-center font-sans">
-      {/* Mobile Frame Container */}
-      <div className="w-full max-w-md bg-white min-h-[100dvh] md:min-h-[800px] md:h-auto flex flex-col relative overflow-hidden">
+    // Outer wrapper: Locks background and centers content
+    <div className="fixed inset-0 bg-black flex justify-center items-center font-sans overflow-hidden">
+      
+      {/* Mobile Frame: Forces exact 100dvh height, no scrolling allowed */}
+      <div className="w-full max-w-md bg-white h-[100dvh] flex flex-col relative overflow-hidden">
         
         {/* Header */}
-        <div className="pt-12 pb-8 text-center">
+        <div className="pt-8 pb-4 text-center shrink-0">
           <h1 className="text-4xl font-extrabold tracking-tight text-black">
             FIND ={'>'} <span className="underline decoration-4 underline-offset-4">{targetNumber}</span>
           </h1>
         </div>
 
-        {/* The Grid */}
-        <div className="flex-1 px-2 pb-4">
-          <div className="grid grid-cols-10 gap-y-1 gap-x-0.5">
+        {/* The Grid: Flex-1 ensures it takes remaining space, content centered */}
+        <div className="flex-1 flex items-center justify-center px-2">
+          <div className="grid grid-cols-10 gap-y-0 gap-x-0.5">
             {gridNumbers.map((num, index) => (
               <button
                 key={index}
                 onClick={() => handleNumberClick(num, index)}
                 disabled={hasWon}
+                // 'h-8' or 'h-9' ensures buttons don't grow too tall
                 className={`
+                  w-8 h-9 flex items-center justify-center
                   text-center font-bold text-lg select-none transition-colors duration-100
                   ${num === targetNumber && hasWon ? 'bg-green-500 text-white rounded-full' : ''}
                   ${wrongClickIndex === index ? 'text-red-500' : 'text-gray-900'}
@@ -79,14 +83,14 @@ const FindTheNumberGame = ({
           </div>
         </div>
 
-        {/* Footer / Attribution - ADDED EXTRA SPACE HERE (pb-12) */}
-        <div className="pb-12 pt-4 text-center">
+        {/* Footer: shrink-0 ensures it stays at bottom without getting squashed */}
+        <div className="pb-8 pt-2 text-center shrink-0">
              <div className="flex justify-center items-center gap-2 text-gray-400 text-sm font-medium tracking-wide">
                 <span>{title}</span>
              </div>
         </div>
 
-        {/* Win Overlay Modal */}
+        {/* Win Overlay */}
         {hasWon && (
           <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-50 animate-in fade-in duration-300">
             <h2 className="text-5xl font-black text-white mb-4 drop-shadow-lg">FOUND IT!</h2>
