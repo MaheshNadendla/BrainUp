@@ -1,9 +1,9 @@
-
-import FindTheNumberPage from '../src/pages/FindTheNumberPage.jsx'
+import FindTheNumberGame from './FindTheNumberGame';
 
 function App() {
   return (
-    <FindTheNumberPage/>
+    <FindTheNumberGame
+    />
   );
 }
 
