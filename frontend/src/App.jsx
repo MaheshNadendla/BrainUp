@@ -1,4 +1,4 @@
-import FindTheNumberGame from './FindTheNumberGame';
+import FindTheNumberGame from './components/FindTheNumberGame.jsx';
 
 function App() {
   return (
