@@ -231,9 +231,334 @@
 
 
 
-import React, { useState, useEffect } from 'react';
+// import React, { useState, useEffect } from 'react';
 
-// Helper: Generates a random number between 10 and 99
+// // Helper: Generates a random number between 10 and 99
+// const getRandomTwoDigit = () => Math.floor(Math.random() * 90) + 10;
+
+// const FindTheNumberGame = ({
+//   rows = 25,
+//   cols = 10,
+//   playTime = 20, 
+//   breakTime = 5,
+//   revealHighlightTime = 4,
+//   revealPopupTime = 4,
+// }) => {
+//   const totalItems = rows * cols;
+  
+//   const [gameState, setGameState] = useState('PLAYING');
+//   const [timeLeft, setTimeLeft] = useState(playTime);
+//   const [level, setLevel] = useState(1);
+  
+//   // Game Data State
+//   const [gridNumbers, setGridNumbers] = useState([]);
+//   const [targetIndex, setTargetIndex] = useState(null);
+//   const [answerCoords, setAnswerCoords] = useState({ row: 0, col: 0 });
+  
+//   // Dynamic Numbers State
+//   const [currentConfig, setCurrentConfig] = useState({
+//     target: 42,
+//     common: 24
+//   });
+
+//   const generateGrid = () => {
+//     const newTarget = getRandomTwoDigit();
+//     let newCommon;
+//     do { newCommon = getRandomTwoDigit(); } while (newCommon === newTarget);
+
+//     const newDistractors = [];
+//     while (newDistractors.length < 3) {
+//       const d = getRandomTwoDigit();
+//       if (d !== newTarget && d !== newCommon && !newDistractors.includes(d)) {
+//         newDistractors.push(d);
+//       }
+//     }
+
+//     setCurrentConfig({ target: newTarget, common: newCommon });
+
+//     let newGrid = new Array(totalItems).fill(newCommon);
+//     for (let i = 0; i < totalItems * 0.05; i++) {
+//       const r = Math.floor(Math.random() * totalItems);
+//       newGrid[r] = newDistractors[Math.floor(Math.random() * newDistractors.length)];
+//     }
+
+//     const tIndex = Math.floor(Math.random() * totalItems);
+//     newGrid[tIndex] = newTarget;
+
+//     const row = Math.floor(tIndex / cols) + 1;
+//     const col = (tIndex % cols) + 1;
+
+//     setGridNumbers(newGrid);
+//     setTargetIndex(tIndex);
+//     setAnswerCoords({ row, col });
+//   };
+
+//   useEffect(() => {
+//     generateGrid();
+//   }, []);
+
+//   useEffect(() => {
+//     const timer = setInterval(() => {
+//       setTimeLeft((prev) => {
+//         if (prev <= 1) {
+//           handlePhaseTransition();
+//           return 0;
+//         }
+//         return prev - 1;
+//       });
+//     }, 1000);
+//     return () => clearInterval(timer);
+//   }, [gameState]);
+
+//   const handlePhaseTransition = () => {
+//     if (gameState === 'PLAYING') {
+//       setGameState('REVEAL_HIGHLIGHT');
+//       setTimeLeft(revealHighlightTime);
+//     } else if (gameState === 'REVEAL_HIGHLIGHT') {
+//       setGameState('REVEAL_POPUP');
+//       setTimeLeft(revealPopupTime);
+//     } else if (gameState === 'REVEAL_POPUP') {
+//       setGameState('BREAK');
+//       setTimeLeft(breakTime);
+//     } else if (gameState === 'BREAK') {
+//       setLevel((l) => l + 1);
+//       generateGrid();
+//       setGameState('PLAYING');
+//       setTimeLeft(playTime);
+//     }
+//   };
+
+//   const getProgressWidth = () => {
+//     let max;
+//     if (gameState === 'PLAYING') max = playTime;
+//     else if (gameState === 'BREAK') max = breakTime;
+//     else if (gameState === 'REVEAL_HIGHLIGHT') max = revealHighlightTime;
+//     else max = revealPopupTime;
+//     return `${(timeLeft / max) * 100}%`;
+//   };
+
+//   const isRevealed = gameState === 'REVEAL_HIGHLIGHT' || gameState === 'REVEAL_POPUP';
+
+//   return (
+//     <div className="fixed inset-0 bg-black flex justify-center items-center font-sans overflow-hidden">
+      
+//       {/* Mobile Frame: Forces 100dvh height */}
+//       <div className="w-full max-w-md bg-white h-[100dvh] flex flex-col relative overflow-hidden">
+        
+//         {/* --- Top Bar (Fixed Height) --- */}
+//         <div className="bg-gray-900 text-white px-4 py-2 flex justify-between items-center shrink-0 z-20 shadow-md">
+//           <span className="font-bold text-yellow-400">LEVEL {level}</span>
+//           <div className="flex items-center gap-2">
+//             <span className="text-xs text-gray-400 uppercase">
+//               {gameState === 'BREAK' ? 'Next In' : isRevealed ? 'Answer' : 'Time Left'}
+//             </span>
+//             <span className={`text-xl font-mono font-bold ${timeLeft <= 5 && gameState === 'PLAYING' ? 'text-red-500' : 'text-white'}`}>
+//               {timeLeft}s
+//             </span>
+//           </div>
+//         </div>
+
+//         {/* --- Progress Bar (Fixed Height) --- */}
+//         <div className="h-1 bg-gray-200 w-full shrink-0">
+//           <div 
+//             className="h-full bg-red-600 transition-all duration-1000 ease-linear"
+//             style={{ width: getProgressWidth() }}
+//           />
+//         </div>
+
+//         {/* --- POPUP (Overlay) --- */}
+//         {gameState === 'REVEAL_POPUP' && (
+//           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-300">
+//             <div className="bg-white border-4 border-red-600 rounded-xl p-8 shadow-2xl transform scale-110 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-300">
+//               <div className="text-red-600 font-extrabold text-2xl uppercase mb-2 tracking-widest">Answer</div>
+//               <div className="text-5xl font-black text-gray-900">
+//                 <span className="text-red-600">{answerCoords.row}</span> , <span className="text-red-600">{answerCoords.col}</span>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* --- MAIN GAME CONTENT AREA (Flex-1 to take all remaining space) --- */}
+//         {gameState === 'BREAK' ? (
+//           <div className="flex-1 flex flex-col items-center justify-center bg-gray-900 text-white animate-in fade-in">
+//              <h2 className="text-2xl font-bold mb-4">Next Puzzle Coming...</h2>
+//              <div className="text-6xl font-black text-yellow-400 mb-2">{timeLeft}</div>
+//           </div>
+//         ) : (
+//           <div className="flex-1 flex flex-col w-full relative min-h-0">
+            
+//             {/* Header Title (Fixed Height) */}
+//             <div className="text-center py-2 shrink-0">
+//                <h1 className="text-2xl font-extrabold tracking-tight text-black">
+//                  FIND ={'>'} <span className="underline decoration-4 underline-offset-4">{currentConfig.target}</span>
+//                </h1>
+//             </div>
+
+//             {/* --- FLEXIBLE GRID CONTAINER --- */}
+//             {/* flex-1 min-h-0 ensures this container takes available space but doesn't overflow */}
+//             <div className="flex-1 flex flex-col px-1 pb-1 min-h-0">
+              
+//               {/* 1. Column Headers (Fixed small height) */}
+//               <div className="flex shrink-0 mb-1">
+//                  <div className="w-6 mr-1"></div> 
+//                  <div className="flex-1 flex gap-x-0.5 justify-between">
+//                    {Array.from({ length: cols }, (_, i) => (
+//                      <div key={i} className={`flex-1 text-[10px] text-center font-mono text-gray-400 ${isRevealed && (i + 1) === answerCoords.col ? 'text-red-600 font-bold' : ''}`}>
+//                        {i + 1}
+//                      </div>
+//                    ))}
+//                  </div>
+//               </div>
+
+//               {/* 2. Rows Container (Flex-1 forces rows to share height) */}
+//               <div className="flex-1 flex flex-col min-h-0">
+//                 {Array.from({ length: rows }, (_, rowIndex) => (
+//                   // Each ROW gets flex-1 to split height evenly
+//                   <div key={rowIndex} className="flex-1 flex items-center w-full">
+                    
+//                     {/* Left Sidebar: Row Number */}
+//                     <div className={`w-6 mr-1 text-[10px] text-right pr-1 font-mono text-gray-400 shrink-0 ${isRevealed && (rowIndex + 1) === answerCoords.row ? 'text-red-600 font-bold' : ''}`}>
+//                       {rowIndex + 1}
+//                     </div>
+
+//                     {/* Grid Numbers Area */}
+//                     <div className="flex-1 flex gap-x-0.5 h-full">
+//                       {gridNumbers.slice(rowIndex * cols, (rowIndex + 1) * cols).map((num, colIndex) => {
+//                         const absoluteIndex = rowIndex * cols + colIndex;
+//                         const isTarget = absoluteIndex === targetIndex;
+//                         const isHighlighted = isRevealed && isTarget;
+//                         const isDimmed = isRevealed && !isTarget;
+
+//                         return (
+//                           // Each CELL fills the row height and width
+//                           <div
+//                             key={colIndex}
+//                             className={`
+//                               flex-1 flex items-center justify-center
+//                               text-center font-bold text-xs sm:text-sm select-none leading-none
+//                               transition-all duration-500
+//                               ${isHighlighted ? 'bg-red-600 text-white rounded shadow-sm z-10 scale-110' : ''}
+//                               ${isDimmed ? 'opacity-30 blur-[1px]' : 'text-gray-900'}
+//                             `}
+//                           >
+//                             {num}
+//                           </div>
+//                         );
+//                       })}
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+
+//           </div>
+//         )}
+
+//         {/* Footer (Fixed Height) */}
+//         <div className="pb-4 pt-1 text-center shrink-0 bg-white z-10 border-t border-gray-100">
+//              <div className="flex justify-center items-center gap-2 text-gray-400 text-xs font-medium tracking-wide">
+//                 <span>BRAIN UP is Live</span>
+//              </div>
+//         </div>
+
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default FindTheNumberGame;
+
+
+import React, { useState, useEffect, useRef } from 'react';
+
+// --- 🎹 SOUND ENGINE (Web Audio API) ---
+// This generates sounds on the fly without needing mp3 files.
+const SoundEngine = {
+  ctx: null,
+
+  init: () => {
+    if (!SoundEngine.ctx) {
+      SoundEngine.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (SoundEngine.ctx.state === 'suspended') {
+      SoundEngine.ctx.resume();
+    }
+  },
+
+  playTone: (freq, type, duration, vol = 0.1) => {
+    if (!SoundEngine.ctx) SoundEngine.init();
+    const osc = SoundEngine.ctx.createOscillator();
+    const gain = SoundEngine.ctx.createGain();
+    
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, SoundEngine.ctx.currentTime);
+    
+    gain.gain.setValueAtTime(vol, SoundEngine.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, SoundEngine.ctx.currentTime + duration);
+
+    osc.connect(gain);
+    gain.connect(SoundEngine.ctx.destination);
+    
+    osc.start();
+    osc.stop(SoundEngine.ctx.currentTime + duration);
+  },
+
+  // 1. Mechanical Tick (Every Second)
+  playTick: (isUrgent) => {
+    if (!SoundEngine.ctx) return;
+    // High pitch for urgent, low click for normal
+    const freq = isUrgent ? 800 : 200; 
+    const type = isUrgent ? 'square' : 'triangle';
+    const vol = isUrgent ? 0.013 : 0.05;
+    SoundEngine.playTone(freq, type, 0.1, vol);
+  },
+
+  // 2. Success Chime (Major Triad: C - E - G)
+  playReveal: () => {
+    if (!SoundEngine.ctx) return;
+    const now = SoundEngine.ctx.currentTime;
+    
+    // Play a chord
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      const osc = SoundEngine.ctx.createOscillator();
+      const gain = SoundEngine.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      
+      // Stagger slightly for a harp effect
+      const startTime = now + (i * 0.05);
+      
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.5);
+
+      osc.connect(gain);
+      gain.connect(SoundEngine.ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + 1.5);
+    });
+  },
+
+  // 3. Next Level Swoosh
+  playNextLevel: () => {
+    if (!SoundEngine.ctx) return;
+    const osc = SoundEngine.ctx.createOscillator();
+    const gain = SoundEngine.ctx.createGain();
+    
+    osc.frequency.setValueAtTime(200, SoundEngine.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(800, SoundEngine.ctx.currentTime + 0.3); // Slide Up
+    
+    gain.gain.setValueAtTime(0.1, SoundEngine.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, SoundEngine.ctx.currentTime + 0.3);
+
+    osc.connect(gain);
+    gain.connect(SoundEngine.ctx.destination);
+    osc.start();
+    osc.stop(SoundEngine.ctx.currentTime + 0.3);
+  }
+};
+
+// --- HELPER: Random Number ---
 const getRandomTwoDigit = () => Math.floor(Math.random() * 90) + 10;
 
 const FindTheNumberGame = ({
@@ -250,16 +575,22 @@ const FindTheNumberGame = ({
   const [timeLeft, setTimeLeft] = useState(playTime);
   const [level, setLevel] = useState(1);
   
-  // Game Data State
+  // Game Data
   const [gridNumbers, setGridNumbers] = useState([]);
   const [targetIndex, setTargetIndex] = useState(null);
   const [answerCoords, setAnswerCoords] = useState({ row: 0, col: 0 });
-  
-  // Dynamic Numbers State
-  const [currentConfig, setCurrentConfig] = useState({
-    target: 42,
-    common: 24
-  });
+  const [currentConfig, setCurrentConfig] = useState({ target: 42, common: 24 });
+
+  // Initialize Audio on First Click
+  useEffect(() => {
+    const unlockAudio = () => SoundEngine.init();
+    window.addEventListener('click', unlockAudio);
+    window.addEventListener('touchstart', unlockAudio);
+    return () => {
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+    };
+  }, []);
 
   const generateGrid = () => {
     const newTarget = getRandomTwoDigit();
@@ -300,6 +631,16 @@ const FindTheNumberGame = ({
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
+        // --- SOUND TRIGGER: CLOCK TICK ---
+        // Play tick on every second change
+        if (prev > 0) {
+            const isUrgent = prev <= 5 && gameState === 'PLAYING';
+            // Only play tick in PLAYING or BREAK mode, not while revealing
+            if (gameState === 'PLAYING' || gameState === 'BREAK') {
+                SoundEngine.playTick(isUrgent);
+            }
+        }
+
         if (prev <= 1) {
           handlePhaseTransition();
           return 0;
@@ -308,23 +649,30 @@ const FindTheNumberGame = ({
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [gameState]);
+  }, [gameState]); // Re-bind when gameState changes so the logic inside holds true
 
   const handlePhaseTransition = () => {
     if (gameState === 'PLAYING') {
+      // 1. Time Up -> Show Highlight
       setGameState('REVEAL_HIGHLIGHT');
       setTimeLeft(revealHighlightTime);
+      SoundEngine.playReveal(); // Play "Ding"
     } else if (gameState === 'REVEAL_HIGHLIGHT') {
+      // 2. Highlight -> Show Popup
       setGameState('REVEAL_POPUP');
       setTimeLeft(revealPopupTime);
+      // Optional: Another ding or swoosh? Let's keep it clean.
     } else if (gameState === 'REVEAL_POPUP') {
+      // 3. Popup -> Break
       setGameState('BREAK');
       setTimeLeft(breakTime);
     } else if (gameState === 'BREAK') {
+      // 4. Break -> Next Level
       setLevel((l) => l + 1);
       generateGrid();
       setGameState('PLAYING');
       setTimeLeft(playTime);
+      SoundEngine.playNextLevel(); // Play "Swoosh"
     }
   };
 
@@ -342,10 +690,9 @@ const FindTheNumberGame = ({
   return (
     <div className="fixed inset-0 bg-black flex justify-center items-center font-sans overflow-hidden">
       
-      {/* Mobile Frame: Forces 100dvh height */}
       <div className="w-full max-w-md bg-white h-[100dvh] flex flex-col relative overflow-hidden">
         
-        {/* --- Top Bar (Fixed Height) --- */}
+        {/* --- Top Bar --- */}
         <div className="bg-gray-900 text-white px-4 py-2 flex justify-between items-center shrink-0 z-20 shadow-md">
           <span className="font-bold text-yellow-400">LEVEL {level}</span>
           <div className="flex items-center gap-2">
@@ -358,7 +705,7 @@ const FindTheNumberGame = ({
           </div>
         </div>
 
-        {/* --- Progress Bar (Fixed Height) --- */}
+        {/* --- Progress Bar --- */}
         <div className="h-1 bg-gray-200 w-full shrink-0">
           <div 
             className="h-full bg-red-600 transition-all duration-1000 ease-linear"
@@ -366,7 +713,7 @@ const FindTheNumberGame = ({
           />
         </div>
 
-        {/* --- POPUP (Overlay) --- */}
+        {/* --- POPUP --- */}
         {gameState === 'REVEAL_POPUP' && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-300">
             <div className="bg-white border-4 border-red-600 rounded-xl p-8 shadow-2xl transform scale-110 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-300">
@@ -378,7 +725,7 @@ const FindTheNumberGame = ({
           </div>
         )}
 
-        {/* --- MAIN GAME CONTENT AREA (Flex-1 to take all remaining space) --- */}
+        {/* --- CONTENT --- */}
         {gameState === 'BREAK' ? (
           <div className="flex-1 flex flex-col items-center justify-center bg-gray-900 text-white animate-in fade-in">
              <h2 className="text-2xl font-bold mb-4">Next Puzzle Coming...</h2>
@@ -387,18 +734,14 @@ const FindTheNumberGame = ({
         ) : (
           <div className="flex-1 flex flex-col w-full relative min-h-0">
             
-            {/* Header Title (Fixed Height) */}
             <div className="text-center py-2 shrink-0">
                <h1 className="text-2xl font-extrabold tracking-tight text-black">
                  FIND ={'>'} <span className="underline decoration-4 underline-offset-4">{currentConfig.target}</span>
                </h1>
             </div>
 
-            {/* --- FLEXIBLE GRID CONTAINER --- */}
-            {/* flex-1 min-h-0 ensures this container takes available space but doesn't overflow */}
             <div className="flex-1 flex flex-col px-1 pb-1 min-h-0">
-              
-              {/* 1. Column Headers (Fixed small height) */}
+              {/* Columns */}
               <div className="flex shrink-0 mb-1">
                  <div className="w-6 mr-1"></div> 
                  <div className="flex-1 flex gap-x-0.5 justify-between">
@@ -410,18 +753,14 @@ const FindTheNumberGame = ({
                  </div>
               </div>
 
-              {/* 2. Rows Container (Flex-1 forces rows to share height) */}
+              {/* Rows */}
               <div className="flex-1 flex flex-col min-h-0">
                 {Array.from({ length: rows }, (_, rowIndex) => (
-                  // Each ROW gets flex-1 to split height evenly
                   <div key={rowIndex} className="flex-1 flex items-center w-full">
-                    
-                    {/* Left Sidebar: Row Number */}
                     <div className={`w-6 mr-1 text-[10px] text-right pr-1 font-mono text-gray-400 shrink-0 ${isRevealed && (rowIndex + 1) === answerCoords.row ? 'text-red-600 font-bold' : ''}`}>
                       {rowIndex + 1}
                     </div>
 
-                    {/* Grid Numbers Area */}
                     <div className="flex-1 flex gap-x-0.5 h-full">
                       {gridNumbers.slice(rowIndex * cols, (rowIndex + 1) * cols).map((num, colIndex) => {
                         const absoluteIndex = rowIndex * cols + colIndex;
@@ -430,7 +769,6 @@ const FindTheNumberGame = ({
                         const isDimmed = isRevealed && !isTarget;
 
                         return (
-                          // Each CELL fills the row height and width
                           <div
                             key={colIndex}
                             className={`
@@ -450,11 +788,10 @@ const FindTheNumberGame = ({
                 ))}
               </div>
             </div>
-
           </div>
         )}
 
-        {/* Footer (Fixed Height) */}
+        {/* Footer */}
         <div className="pb-4 pt-1 text-center shrink-0 bg-white z-10 border-t border-gray-100">
              <div className="flex justify-center items-center gap-2 text-gray-400 text-xs font-medium tracking-wide">
                 <span>BRAIN UP is Live</span>
