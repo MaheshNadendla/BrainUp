@@ -239,7 +239,7 @@ const getRandomTwoDigit = () => Math.floor(Math.random() * 90) + 10;
 
 const FindTheNumberGame = ({
   rows = 25,
-  cols = 11,
+  cols = 10,
   playTime = 20, 
   breakTime = 5,
   revealHighlightTime = 4,
